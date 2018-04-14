@@ -10,13 +10,17 @@ public class Node : MonoBehaviour
 	public iTween.EaseType easeType = iTween.EaseType.easeInOutExpo;
 	public bool autoRun = false;
 	public float delay = 1f;
+	public GameObject linkPrefab;
 	// ════ properties ════
 	Vector2 m_coordinate;
 	public Vector2 Coordinate { get { return Utility.Vector2Round (m_coordinate); } }
-	private List<Node> m_neighborNodes;
+	private List<Node> m_neighborNodes = new List<Node> ();
 	public List<Node> NeighborNodes { get { return m_neighborNodes; } }
+	private List<Node> m_linkedNodes = new List<Node> ();
+	public List<Node> LinkedNodes { get { return m_linkedNodes; } }
 	// ════ privates ════
 	Board m_board;
+	bool m_initialized = false;
 
 	// ════ methods ════
 	void Awake ()
@@ -34,7 +38,7 @@ public class Node : MonoBehaviour
 
 			if (autoRun)
 			{
-				ShowGeometry ();
+				InitNode ();
 			}
 
 			if (m_board != null)
@@ -70,5 +74,57 @@ public class Node : MonoBehaviour
 			}
 		}
 		return nList;
+	}
+
+	public void InitNode ()
+	{
+		if (!m_initialized)
+		{
+			ShowGeometry ();
+			InitNeighbors ();
+			m_initialized = true;
+		}
+	}
+
+	void InitNeighbors ()
+	{
+		StartCoroutine (InitNeighborsRoutine ());
+	}
+
+	IEnumerator InitNeighborsRoutine ()
+	{
+		yield return new WaitForSeconds (delay);
+
+		foreach (Node n in m_neighborNodes)
+		{
+			if (!m_linkedNodes.Contains (n))
+			{
+				LinkNode (n);
+				n.InitNode ();
+			}
+		}
+	}
+
+	void LinkNode (Node targetNode)
+	{
+		if (linkPrefab != null)
+		{
+			GameObject linkInstance = Instantiate (linkPrefab, transform.position, Quaternion.identity);
+			linkInstance.transform.parent = transform;
+
+			Link link = linkInstance.GetComponent<Link> ();
+			if (link != null)
+			{
+				link.DrawLink (transform.position, targetNode.transform.position);
+			}
+			if (!m_linkedNodes.Contains (targetNode))
+			{
+				m_linkedNodes.Add (targetNode);
+			}
+			if (!targetNode.LinkedNodes.Contains (this))
+			{
+				targetNode.LinkedNodes.Add (this);
+			}
+		}
 	}
 }
