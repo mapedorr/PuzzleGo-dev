@@ -129,3 +129,6 @@ MonoBehaviour:
   autoRun: 0
   delay: 0.3
   linkPrefab: {fileID: 1018707710507444, guid: f6314b53dbd21c044b39baa1b1da6836, type: 2}
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 256

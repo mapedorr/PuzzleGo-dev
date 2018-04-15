@@ -8,9 +8,9 @@ public class Node : MonoBehaviour
 	public GameObject geometry;
 	public float scaleTime = 0.3f;
 	public iTween.EaseType easeType = iTween.EaseType.easeInOutExpo;
-	public bool autoRun = false;
 	public float delay = 1f;
 	public GameObject linkPrefab;
+	public LayerMask obstacleLayer;
 	// ════ properties ════
 	Vector2 m_coordinate;
 	public Vector2 Coordinate { get { return Utility.Vector2Round (m_coordinate); } }
@@ -35,11 +35,6 @@ public class Node : MonoBehaviour
 		if (geometry != null)
 		{
 			geometry.transform.localScale = Vector3.zero;
-
-			if (autoRun)
-			{
-				InitNode ();
-			}
 
 			if (m_board != null)
 			{
@@ -99,8 +94,12 @@ public class Node : MonoBehaviour
 		{
 			if (!m_linkedNodes.Contains (n))
 			{
-				LinkNode (n);
-				n.InitNode ();
+				Obstacle obstacle = FindObstacle (n);
+				if (obstacle == null)
+				{
+					LinkNode (n);
+					n.InitNode ();
+				}
 			}
 		}
 	}
@@ -126,5 +125,19 @@ public class Node : MonoBehaviour
 				targetNode.LinkedNodes.Add (this);
 			}
 		}
+	}
+
+	Obstacle FindObstacle (Node targetNode)
+	{
+		Vector3 checkDirection = targetNode.transform.position - transform.position;
+		RaycastHit raycastHit;
+
+		if (Physics.Raycast (transform.position, checkDirection, out raycastHit,
+				Board.spacing + 0.1f, obstacleLayer))
+		{
+			return raycastHit.collider.GetComponent<Obstacle> ();
+		}
+
+		return null;
 	}
 }
