@@ -126,9 +126,9 @@ MonoBehaviour:
   geometry: {fileID: 1921995983805414}
   scaleTime: 0.3
   easeType: 17
-  autoRun: 0
-  delay: 0.3
+  delay: 0.25
   linkPrefab: {fileID: 1018707710507444, guid: f6314b53dbd21c044b39baa1b1da6836, type: 2}
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 256
+  isLevelGoal: 0

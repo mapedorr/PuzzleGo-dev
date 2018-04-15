@@ -11,6 +11,7 @@ public class Node : MonoBehaviour
 	public float delay = 1f;
 	public GameObject linkPrefab;
 	public LayerMask obstacleLayer;
+	public bool isLevelGoal = false;
 	// ════ properties ════
 	Vector2 m_coordinate;
 	public Vector2 Coordinate { get { return Utility.Vector2Round (m_coordinate); } }
@@ -51,8 +52,19 @@ public class Node : MonoBehaviour
 				"time", scaleTime,
 				"scale", Vector3.one,
 				"easetype", easeType,
-				"delay", delay
+				"delay", delay,
+				"oncomplete", "GeometryVisible",
+				"oncompletetarget", gameObject
 			));
+		}
+	}
+
+	public void GeometryVisible ()
+	{
+		m_board.VisibleNodes++;
+		if (isLevelGoal)
+		{
+			m_board.DrawGoal ();
 		}
 	}
 
@@ -78,6 +90,7 @@ public class Node : MonoBehaviour
 			ShowGeometry ();
 			InitNeighbors ();
 			m_initialized = true;
+			m_board.ActiveNodes++;
 		}
 	}
 
@@ -139,5 +152,14 @@ public class Node : MonoBehaviour
 		}
 
 		return null;
+	}
+
+	void OnDrawGizmos ()
+	{
+		if (isLevelGoal)
+		{
+			Gizmos.color = new Color (0f, 1f, 0f, 0.5f);
+			Gizmos.DrawSphere (transform.position, 0.2f);
+		}
 	}
 }

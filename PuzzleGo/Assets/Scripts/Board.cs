@@ -14,11 +14,21 @@ public class Board : MonoBehaviour
 		new Vector2 (0f, spacing),
 		new Vector2 (0f, -spacing)
 	};
+	public GameObject goalPrefab;
+	public float drawGoalTime = 2f;
+	public float drawGoalDelay = 2f;
+	public iTween.EaseType drawGoalEaseType = iTween.EaseType.easeOutExpo;
 	// ════ properties ════
-	private List<Node> m_allNodes;
+	List<Node> m_allNodes;
 	public List<Node> AllNodes { get { return m_allNodes; } }
-	private Node m_playerNode;
+	Node m_playerNode;
 	public Node PlayerNode { get { return m_playerNode; } }
+	Node m_goalNode;
+	public Node GoalNode { get { return m_goalNode; } }
+	int m_visibleNodes = 0;
+	public int VisibleNodes { get { return m_visibleNodes; } set { m_visibleNodes = value; } }
+	int m_activeNodes = 0;
+	public int ActiveNodes { get { return m_activeNodes; } set { m_activeNodes = value; } }
 	// ════ privates ════
 	PlayerMover m_playerMover;
 
@@ -27,6 +37,8 @@ public class Board : MonoBehaviour
 	{
 		m_playerMover = Object.FindObjectOfType<PlayerMover> ().GetComponent<PlayerMover> ();
 		FillNodeList ();
+
+		m_goalNode = FindGoalNode ();
 	}
 
 	public void FillNodeList ()
@@ -39,6 +51,11 @@ public class Board : MonoBehaviour
 	{
 		Vector2 boardCoord = Utility.Vector2Round (new Vector2 (pos.x, pos.z));
 		return m_allNodes.Find (n => n.Coordinate == boardCoord);
+	}
+
+	Node FindGoalNode ()
+	{
+		return m_allNodes.Find (n => n.isLevelGoal);
 	}
 
 	public Node FindPlayerNode ()
@@ -62,6 +79,31 @@ public class Board : MonoBehaviour
 		if (m_playerNode != null)
 		{
 			Gizmos.DrawSphere (m_playerNode.transform.position, 0.2f);
+		}
+	}
+
+	public void DrawGoal ()
+	{
+		if (goalPrefab != null && m_goalNode != null)
+		{
+			GameObject goalInstance = Instantiate (goalPrefab,
+				m_goalNode.transform.position,
+				Quaternion.identity);
+
+			iTween.ScaleFrom (goalInstance, iTween.Hash (
+				"scale", Vector3.zero,
+				"time", drawGoalTime,
+				"delay", drawGoalDelay,
+				"easetype", drawGoalEaseType
+			));
+		}
+	}
+
+	public void InitBoard ()
+	{
+		if (m_playerNode != null)
+		{
+			m_playerNode.InitNode ();
 		}
 	}
 }
