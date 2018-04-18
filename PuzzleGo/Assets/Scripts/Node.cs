@@ -68,12 +68,12 @@ public class Node : MonoBehaviour
 		}
 	}
 
-	public List<Node> FindNeighbors (List<Node> ndoes)
+	public List<Node> FindNeighbors (List<Node> nodes)
 	{
 		List<Node> nList = new List<Node> ();
 		foreach (Vector2 dir in Board.directions)
 		{
-			Node foundNeighbor = ndoes.Find (n => n.Coordinate == Coordinate + dir);
+			Node foundNeighbor = FindNeighborAt (nodes, dir);
 
 			if (foundNeighbor != null && !nList.Contains (foundNeighbor))
 			{
@@ -81,6 +81,16 @@ public class Node : MonoBehaviour
 			}
 		}
 		return nList;
+	}
+
+	public Node FindNeighborAt (List<Node> nodes, Vector2 dir)
+	{
+		return nodes.Find (n => n.Coordinate == Coordinate + dir);
+	}
+
+	public Node FindNeighborAt (Vector2 dir)
+	{
+		return FindNeighborAt (NeighborNodes, dir);
 	}
 
 	public void InitNode ()

@@ -31,11 +31,13 @@ public class Board : MonoBehaviour
 	public int ActiveNodes { get { return m_activeNodes; } set { m_activeNodes = value; } }
 	// ════ privates ════
 	PlayerMover m_playerMover;
+	PlayerCompass m_playerCompass;
 
 	// ════ methods ════
 	void Awake ()
 	{
 		m_playerMover = Object.FindObjectOfType<PlayerMover> ().GetComponent<PlayerMover> ();
+		m_playerCompass = m_playerMover.GetComponentInChildren<PlayerCompass> ();
 		FillNodeList ();
 
 		m_goalNode = FindGoalNode ();
@@ -96,6 +98,11 @@ public class Board : MonoBehaviour
 				"delay", drawGoalDelay,
 				"easetype", drawGoalEaseType
 			));
+
+			if (m_playerCompass != null)
+			{
+				m_playerCompass.ShowArrows (true);
+			}
 		}
 	}
 
