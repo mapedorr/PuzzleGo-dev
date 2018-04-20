@@ -6,12 +6,12 @@ using UnityEngine;
 public class Obstacle : MonoBehaviour
 {
 	// ════ privates ════
-	BoxCollider m_boxCollider;
+	// BoxCollider m_boxCollider;
 
 	// ════ methods ════
 	void Awake ()
 	{
-		m_boxCollider = GetComponent<BoxCollider> ();
+		// m_boxCollider = GetComponent<BoxCollider> ();
 	}
 
 	void OnDrawGizmos ()
