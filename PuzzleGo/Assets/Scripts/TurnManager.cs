@@ -2,53 +2,30 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMover : Mover
+public class TurnManager : MonoBehaviour
 {
 	// ══════════════════════════════════════════════════════════════ PUBLICS ════
 	// ═══════════════════════════════════════════════════════════ PROPERTIES ════
+	protected bool m_isTurnComplete;
+	public bool IsTurnComplete { get { return m_isTurnComplete; } set { m_isTurnComplete = value; } }
+
 	// ═════════════════════════════════════════════════════════════ PRIVATES ════
-	PlayerCompass m_playerCompass;
+	protected GameManager m_gameManager;
 
 	// ══════════════════════════════════════════════════════════════ METHODS ════
-	protected override void Awake ()
+	protected virtual void Awake ()
 	{
-		base.Awake ();
-		m_playerCompass = GetComponentInChildren<PlayerCompass> ();
+		m_gameManager = Object.FindObjectOfType<GameManager> ().GetComponent<GameManager> ();
 	}
 
-	protected override void Start ()
+	// complete the turn and notify the GameManager
+	public virtual void FinishTurn ()
 	{
-		base.Start ();
-		UpdateBoard ();
-	}
+		m_isTurnComplete = true;
 
-	protected override IEnumerator MoveRoutine (Vector3 destinationPos, float delayTime)
-	{
-		if (m_playerCompass != null)
+		if (m_gameManager != null)
 		{
-			m_playerCompass.ShowArrows (false);
-		}
-
-		yield return StartCoroutine (base.MoveRoutine (destinationPos, delayTime));
-
-		UpdateBoard ();
-
-		if (m_playerCompass != null)
-		{
-			m_playerCompass.ShowArrows (true);
-		}
-
-		if (finishMovementEvent != null)
-		{
-			finishMovementEvent.Invoke ();
-		}
-	}
-
-	void UpdateBoard ()
-	{
-		if (base.m_board != null)
-		{
-			base.m_board.UpdatePlayerNode ();
+			m_gameManager.UpdateTurn ();
 		}
 	}
 }

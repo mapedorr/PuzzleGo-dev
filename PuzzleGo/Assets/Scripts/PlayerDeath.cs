@@ -2,53 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMover : Mover
+public class PlayerDeath : MonoBehaviour
 {
 	// ══════════════════════════════════════════════════════════════ PUBLICS ════
+	public Animator playerAnimController;
+	public string playerDeathTrigger = "IsDead";
+
 	// ═══════════════════════════════════════════════════════════ PROPERTIES ════
+	// TODO: define properties
+
 	// ═════════════════════════════════════════════════════════════ PRIVATES ════
-	PlayerCompass m_playerCompass;
+	// TODO: define prrivates
 
 	// ══════════════════════════════════════════════════════════════ METHODS ════
-	protected override void Awake ()
+	public void Die ()
 	{
-		base.Awake ();
-		m_playerCompass = GetComponentInChildren<PlayerCompass> ();
-	}
-
-	protected override void Start ()
-	{
-		base.Start ();
-		UpdateBoard ();
-	}
-
-	protected override IEnumerator MoveRoutine (Vector3 destinationPos, float delayTime)
-	{
-		if (m_playerCompass != null)
+		if (playerAnimController != null)
 		{
-			m_playerCompass.ShowArrows (false);
-		}
-
-		yield return StartCoroutine (base.MoveRoutine (destinationPos, delayTime));
-
-		UpdateBoard ();
-
-		if (m_playerCompass != null)
-		{
-			m_playerCompass.ShowArrows (true);
-		}
-
-		if (finishMovementEvent != null)
-		{
-			finishMovementEvent.Invoke ();
-		}
-	}
-
-	void UpdateBoard ()
-	{
-		if (base.m_board != null)
-		{
-			base.m_board.UpdatePlayerNode ();
+			playerAnimController.SetTrigger (playerDeathTrigger);
 		}
 	}
 }

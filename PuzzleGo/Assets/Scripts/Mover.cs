@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Mover : MonoBehaviour
 {
@@ -10,9 +11,17 @@ public class Mover : MonoBehaviour
 	public iTween.EaseType easeType;
 	public float moveSpeed = 1.5f;
 	public float iTweenDelay = 0f;
+	// the time it will take to the RotateTo tween to complete (no matter the amount)
+	// of degrees to rotate to
+	public float rotateTime = .5f;
+	public bool faceDestination = false;
+	public UnityEvent finishMovementEvent;
+	// ═══════════════════════════════════════════════════════════ PROPERTIES ════
+	protected Node m_currentNode;
+	public Node CurrentNode { get { return m_currentNode; } }
+
 	// ═════════════════════════════════════════════════════════════ PRIVATES ════
 	protected Board m_board;
-	protected Node m_currentNode;
 
 	// ══════════════════════════════════════════════════════════════ METHODS ════
 	protected virtual void Awake ()
@@ -25,7 +34,7 @@ public class Mover : MonoBehaviour
 		UpdateCurrentNode ();
 	}
 
-	protected void Move (Vector3 destinationPos, float delayTime = 0.25f)
+	public void Move (Vector3 destinationPos, float delayTime = 0.25f)
 	{
 		if (isMoving)
 		{
@@ -54,6 +63,14 @@ public class Mover : MonoBehaviour
 	{
 		isMoving = true;
 		destination = destinationPos;
+
+		// optional turn to face destination
+		if (faceDestination)
+		{
+			FaceDestination ();
+			yield return new WaitForSeconds (.25f);
+		}
+
 		yield return new WaitForSeconds (delayTime);
 		iTween.MoveTo (gameObject, iTween.Hash (
 			"x", destinationPos.x,
@@ -106,5 +123,22 @@ public class Mover : MonoBehaviour
 		{
 			m_currentNode = m_board.FindNodeAt (transform.position);
 		}
+	}
+
+	protected void FaceDestination ()
+	{
+		// calculate vector from current position to destination position
+		Vector3 relativePosition = destination - transform.position;
+		// first parameter is the direction of destination, the second one is the up
+		// vector
+		Quaternion rotation = Quaternion.LookRotation (relativePosition, Vector3.up);
+		// get the amount of degrees to rotate in the Y axis
+		float newY = rotation.eulerAngles.y;
+		iTween.RotateTo (gameObject, iTween.Hash (
+			"y", newY,
+			"delay", 0f,
+			"easetype", easeType,
+			"time", rotateTime
+		));
 	}
 }

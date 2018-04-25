@@ -2,53 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMover : Mover
+public class EnemyAttack : MonoBehaviour
 {
 	// ══════════════════════════════════════════════════════════════ PUBLICS ════
+	// TODO: define public variables
 	// ═══════════════════════════════════════════════════════════ PROPERTIES ════
+	// TODO: define properties
 	// ═════════════════════════════════════════════════════════════ PRIVATES ════
-	PlayerCompass m_playerCompass;
+	PlayerManager m_player;
 
 	// ══════════════════════════════════════════════════════════════ METHODS ════
-	protected override void Awake ()
+	void Awake ()
 	{
-		base.Awake ();
-		m_playerCompass = GetComponentInChildren<PlayerCompass> ();
+		m_player = Object.FindObjectOfType<PlayerManager> ().GetComponent<PlayerManager> ();
 	}
 
-	protected override void Start ()
+	public void Attack ()
 	{
-		base.Start ();
-		UpdateBoard ();
-	}
-
-	protected override IEnumerator MoveRoutine (Vector3 destinationPos, float delayTime)
-	{
-		if (m_playerCompass != null)
+		if (m_player != null)
 		{
-			m_playerCompass.ShowArrows (false);
-		}
-
-		yield return StartCoroutine (base.MoveRoutine (destinationPos, delayTime));
-
-		UpdateBoard ();
-
-		if (m_playerCompass != null)
-		{
-			m_playerCompass.ShowArrows (true);
-		}
-
-		if (finishMovementEvent != null)
-		{
-			finishMovementEvent.Invoke ();
-		}
-	}
-
-	void UpdateBoard ()
-	{
-		if (base.m_board != null)
-		{
-			base.m_board.UpdatePlayerNode ();
+			m_player.Die ();
 		}
 	}
 }

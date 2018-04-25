@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Board : MonoBehaviour
 {
-	// ════ publics ════
-	public static float spacing = 2f;
+	// ══════════════════════════════════════════════════════════════ PUBLICS ════
 	// readonly: once this class is constructed for the first time, the directions
 	// can't be changed
+	public static float spacing = 2f;
 	public static readonly Vector2[] directions = {
 		new Vector2 (spacing, 0f),
 		new Vector2 (-spacing, 0f),
@@ -18,24 +18,42 @@ public class Board : MonoBehaviour
 	public float drawGoalTime = 2f;
 	public float drawGoalDelay = 2f;
 	public iTween.EaseType drawGoalEaseType = iTween.EaseType.easeOutExpo;
-	// ════ properties ════
+	public List<Transform> capturePositions;
+	public float capturePositionIconSize = .4f;
+	public Color capturePositionIconColor = Color.blue;
+
+	// ═══════════════════════════════════════════════════════════ PROPERTIES ════
 	List<Node> m_allNodes;
 	public List<Node> AllNodes { get { return m_allNodes; } }
+
 	Node m_playerNode;
 	public Node PlayerNode { get { return m_playerNode; } }
+
 	Node m_goalNode;
 	public Node GoalNode { get { return m_goalNode; } }
+
 	int m_visibleNodes = 0;
 	public int VisibleNodes { get { return m_visibleNodes; } set { m_visibleNodes = value; } }
+
 	int m_activeNodes = 0;
 	public int ActiveNodes { get { return m_activeNodes; } set { m_activeNodes = value; } }
-	// ════ privates ════
+
+	int m_currentCapturePosition = 0;
+	public int CurrentCapturePosition
+	{
+		get { return m_currentCapturePosition; }
+		set { m_currentCapturePosition = value; }
+	}
+
+	// ═════════════════════════════════════════════════════════════ PRIVATES ════
 	PlayerMover m_playerMover;
 	PlayerCompass m_playerCompass;
 
-	// ════ methods ════
+	// ══════════════════════════════════════════════════════════════ METHODS ════
 	void Awake ()
 	{
+		spacing = 2f;
+
 		m_playerMover = Object.FindObjectOfType<PlayerMover> ().GetComponent<PlayerMover> ();
 		m_playerCompass = m_playerMover.GetComponentInChildren<PlayerCompass> ();
 		FillNodeList ();
@@ -70,6 +88,24 @@ public class Board : MonoBehaviour
 		return null;
 	}
 
+	public List<EnemyManager> FindEnemiesAt (Node node)
+	{
+		List<EnemyManager> foundEnemies = new List<EnemyManager> ();
+		EnemyManager[] enemies = Object.FindObjectsOfType<EnemyManager> () as EnemyManager[];
+
+		foreach (EnemyManager enemy in enemies)
+		{
+			EnemyMover mover = enemy.GetComponent<EnemyMover> ();
+
+			if (mover.CurrentNode == node)
+			{
+				foundEnemies.Add (enemy);
+			}
+		}
+
+		return foundEnemies;
+	}
+
 	public void UpdatePlayerNode ()
 	{
 		m_playerNode = FindPlayerNode ();
@@ -81,6 +117,13 @@ public class Board : MonoBehaviour
 		if (m_playerNode != null)
 		{
 			Gizmos.DrawSphere (m_playerNode.transform.position, 0.2f);
+		}
+
+		Gizmos.color = capturePositionIconColor;
+
+		foreach (Transform capturePos in capturePositions)
+		{
+			Gizmos.DrawCube (capturePos.position, Vector3.one * capturePositionIconSize);
 		}
 	}
 
